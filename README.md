@@ -1,2 +1,2 @@
 # nim
-Server based implementation of nim in C
+Creates a server to connect users to play games of nim via the console
