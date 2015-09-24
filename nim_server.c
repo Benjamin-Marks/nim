@@ -49,10 +49,10 @@ int main(int argc, const char* argv[]) {
         perror("nim_server:gethostname");
         exit(1);
     }
-    //now make the file
+    //Make the serverinfo file for other processes to access
     makeLocFile();
     
-    //And the demons rise
+    //Initialize Server Daemon
     runDaemon();
     printf("Shutting down nim_server\n");
     remove("serverinfo.txt");
@@ -92,7 +92,7 @@ void runDaemon() { while(1) {
             perror("nim_server:recvfromDGram");
             break;
         }
-        //Determine message type
+        //Validate message is a Query
         if(msg[0] == 'Q') {
             //Received query, return games
             retQuery(dgramSock, games, from);
@@ -153,9 +153,8 @@ void runDaemon() { while(1) {
 
 //catches SIGUSR2, shuts down server
 void sigUsrHandle() {
-    //Delete server file
+    //Delete server file and exit
     remove("serverinfo.txt");
-    //Free any memory, etc.
     exit(0);
 }
 
@@ -168,7 +167,7 @@ void sigChildHandle() {
         return;
     }
     //search games for pid
-    if (games == NULL) { //Hope this isn't a super weird bug that makes zombies
+    if (games == NULL) {
         return;
     }
     game *curGame = games;

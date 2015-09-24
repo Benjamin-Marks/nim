@@ -9,17 +9,17 @@ int switchPlayer(int curPlayer);
 int updateBoard(int board, char* buf);
 void winGame(int curPlayer);
 
-//argv[1] = HandleA
-//argv[2] = HandleB
-//argv[3] = connA
-//argv[4] = connB
-
 const char* handleA;
 const char* handleB;
 int connA;
 int connB;
 
-
+/*
+ * argv[1] = HandleA
+ * argv[2] = HandleB
+ * argv[3] = connA
+ * argv[4] = connB
+ */
 int main(int argc, const char* argv[]) {
     if (argc != 5) {
         fprintf(stderr, "nim_match_server invoked incorrectly %d\n", argc);
@@ -66,7 +66,7 @@ int main(int argc, const char* argv[]) {
     c = ';';
     write(connB, &c, 1);
     
-    //And fuck it we're done. See if this works
+    //Begin playing game
     gameLoop();
 
     return 0;
@@ -74,8 +74,14 @@ int main(int argc, const char* argv[]) {
 
 void gameLoop() { 
     int curPlayer = connA; //socket for the current player
-    int board = 91357;  //Each digit is the number of pegs in the corresponding row, 9 added to front
-   while(1) { //Game in Progress
+    /*
+     * Board represents the curent state of the pegs in the board
+     * Each digit corresponds to the number of pegs in that digits row
+     * i.e. Row 1 has 1 peg, row 2 has 3 pegs, etc.
+     * 9 is prepended to ensure the number always has 5 digits, but is not used
+     */
+    int board = 91357;  
+   while(1) {
         //send Board to player
         char c = 'B';
         write(curPlayer, &c, 1);
@@ -102,8 +108,8 @@ void gameLoop() {
         if (c != 'M') {
             fprintf(stderr, "nim_match:invalid message type %c\n", c);
             winGame(switchPlayer(curPlayer));
-            }
-        read(curPlayer, buffer, 1); //read the move TODO: error check this stuff?
+        }
+        read(curPlayer, buffer, 1); //read the move TODO: validate in case of network corruption
         read(curPlayer, buffer + 1, 1);
         read(curPlayer, &c, 1);
         if (c != ';') {
@@ -127,15 +133,20 @@ int switchPlayer(int curPlayer) {
     }
 }
 
-//Updates board
-//Buf: unparsed chars for move
+/* 
+ * Parses move request and updates board ineteger
+ * board: current state of the board
+ * buf: unparsed chars from the user's move
+ */
 int updateBoard(int board, char* buf) {
     int row = strtol(buf, NULL, 10);
+    // number of pegs to remove
     int remove = row % 10;
     row /= 10;
     printf("move: %d %d\n", row, remove);
+    //Change remove value to correspond to integer row in board
     int i;
-    for (i = 4-row; i > 0; i--) {
+    for (i = 4 - row; i > 0; i--) {
         remove *= 10;
     }
     return board - remove;

@@ -111,12 +111,11 @@ int retQuery(int dgramSock, game *curGame, struct sockaddr_in from) {
             return 0;
         }
     } else {
-        //Start dat encoding
-        //handle + padding + whatever else
+        //handle + padding + any other info
         char msg[200] = "";
         char* startPtr = &msg[0];
 
-        while(curGame != NULL) { //TODO: Test this ish
+        while(curGame != NULL) { 
             memcpy(startPtr, curGame->handleA, strlen(curGame->handleA));
             startPtr += strlen(curGame->handleA);
             if (curGame->gameID != 0) {//There's a handle B
@@ -144,9 +143,11 @@ int retQuery(int dgramSock, game *curGame, struct sockaddr_in from) {
     return 1;
 }
 
-//Returns sockaddr_in struct for a new address
-//Parameters: dgram: boolean: 1 returns dgram socket, 0 returns tcp socket
-//sock: will be filled with socket number
+/*
+ * Returns sockaddr_in struct for a new address
+ * Parameters: dgram: boolean: 1 returns dgram socket, 0 returns tcp socket
+ * sock: will be filled with socket number
+ */
 struct sockaddr_in* getnewAddr(int dgram, int* sock) {
 
     //Code from myaddrs.c

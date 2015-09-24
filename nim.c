@@ -50,7 +50,6 @@ int main(int argc, const char* argv[]) {
         }
         exit(0);
     } else {
-        //struct sockaddr_in* sin = getnewAddr(0, &mySock);
         printf("Your Handle: ");
         fflush(stdout);        
         memset(myHandle, 0, sizeof(myHandle));
@@ -113,7 +112,7 @@ int main(int argc, const char* argv[]) {
         read(fd, &type, 1);
         if(type == 'E') { //No games in progress, wait
             printf("No Currently Available Players, please wait\n");
-            read(fd, &type, 1); //Get the handle header TODO actually verify this
+            read(fd, &type, 1); //Wait for the handle header 
         }
         printf("Retrieving partner information\n");
 
@@ -134,8 +133,7 @@ int main(int argc, const char* argv[]) {
     return 0;
 }
 
-void playGame(int sock) {
-    while(1) {
+void playGame(int sock) { while(1) {
     int board = getBoard(sock);
     printBoard(board);
     //get move
@@ -171,10 +169,7 @@ void playGame(int sock) {
     }
     c = ';';
     write(sock, &c, 1);
-}
-    //then print win/loss
-
-}
+}}
 
 //gets board config from server
 int getBoard(int sock) {
@@ -194,7 +189,7 @@ int getBoard(int sock) {
             exit(0);
         }
     }         
-    return strtol(buffer + 1, NULL, 10); //TODO: Verification and shit
+    return strtol(buffer + 1, NULL, 10);
 }
 
 //Prints the formatted board
@@ -293,7 +288,6 @@ int validateMove(char* buf, int board) {
         return 0;
     }
     errno = 0;
-    //char* startPtr = endPtr;
     int remove = strtol(endPtr, NULL, 10);
     if (errno != 0 || remove > 7 || remove < 1) {
         return 0;
